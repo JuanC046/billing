@@ -1,24 +1,27 @@
 "use client";
-import { useState } from "react";
-
+// import styles from "./Form.module.css";
 import Form from "next/form";
 import TextField from "@mui/material/TextField";
-// import styles from "./Form.module.css";
-import { itemSchema } from "@/schemas/item";
 import Button from "@mui/material/Button";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
-import Select, { SelectChangeEvent } from "@mui/material/Select";
+import Select from "@mui/material/Select";
+
 import measures from "@/data/static/measures.json";
 import standard_code from "@/data/static/standard_code.json";
+
+import { itemSchema } from "@/schemas/item";
+
+import useForm from "@/hooks/useForm";
+
 interface Withholding_taxSchema {
     code: number;
     withholding_tax_rate: number;
     [key: string]: string | number | Withholding_taxSchema[] | undefined;
 }
-interface FormData {
+interface FormDataInteface {
     code_reference: string;
     name: string;
     price: number;
@@ -29,121 +32,41 @@ interface FormData {
     tribute_id: number;
     withholding_taxes?: Withholding_taxSchema[];
 }
-
+const initialFormData: FormDataInteface = {
+    code_reference: "",
+    name: "",
+    price: 0,
+    tax_rate: "",
+    unit_measure_id: 0,
+    standard_code_id: 0,
+    is_excluded: 0,
+    tribute_id: 0,
+    withholding_taxes: [],
+};
+const initialFormErrors: Record<string, string> = {
+    code_reference: "",
+    name: "",
+    price: "",
+    tax_rate: "",
+    unit_measure_id: "",
+    standard_code_id: "",
+    is_excluded: "",
+    tribute_id: "",
+    withholding_taxes: "",
+};
 export default function ProductPage() {
-    const [formData, setFormData] = useState<FormData>({
-        code_reference: "",
-        name: "",
-        price: 0,
-        tax_rate: "",
-        unit_measure_id: 0,
-        standard_code_id: 0,
-        is_excluded: 0,
-        tribute_id: 0,
-        withholding_taxes: [],
-    });
-    const [formErrors, setFormErrors] = useState({
-        code_reference: "",
-        name: "",
-        price: "",
-        tax_rate: "",
-        unit_measure_id: "",
-        standard_code_id: "",
-        is_excluded: "",
-        tribute_id: "",
-        withholding_taxes: "",
-    });
-    const parseValue = (name: string, value: string): number | string => {
-        return [
-            "price",
-            "unit_measure_id",
-            "standard_code_id",
-            "is_excluded",
-            "tribute_id",
-        ].includes(name)
-            ? Number(value)
-            : value;
-    };
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
-        const { name, value } = event.target;
-        console.log(name, value);
-        console.log(typeof value);
-        setFormData({
-            ...formData,
-            [name]: parseValue(name, value),
-        });
-    };
-    const handleChangeSelect = (event: SelectChangeEvent): void => {
-        const { name, value } = event.target;
-        console.log(name, value);
-        console.log(typeof value);
-        setFormData({
-            ...formData,
-            [name]: value,
-        });
-    };
-    const handleBlur = (event: React.FocusEvent<HTMLInputElement>): void => {
-        const { name, value } = event.target;
-        const result = itemSchema.pick({ [name]: true }).safeParse({
-            [name]: parseValue(name, value),
-        });
-        if (result.success) {
-            setFormErrors({
-                ...formErrors,
-                [name]: "",
-            });
-        } else {
-            setFormErrors({
-                ...formErrors,
-                [name]: result.error.errors[0].message,
-            });
-        }
-    };
-    const handleSubmit = async (
-        event: React.FormEvent<HTMLFormElement>
-    ): Promise<void> => {
-        event.preventDefault();
-        const data: FormData = {
-            code_reference: formData["code_reference"],
-            name: formData["name"],
-            price: formData["price"],
-            tax_rate: formData["tax_rate"],
-            unit_measure_id: formData["unit_measure_id"],
-            standard_code_id: formData["standard_code_id"],
-            is_excluded: formData["is_excluded"],
-            tribute_id: formData["tribute_id"],
-            withholding_taxes: formData["withholding_taxes"],
-        };
-        console.log("Data", data);
-        const result = itemSchema.safeParse(data);
-        console.log(typeof result.error, result.error);
-        if (result.success) {
-            console.log(data);
-        } else {
-            const errors = result.error.errors.reduce(
-                (
-                    acc: Record<string, string>,
-                    curr: { path: (string | number)[]; message: string }
-                ) => {
-                    acc[curr.path[0]] = curr.message;
-                    return acc;
-                },
-                {}
-            );
-            setFormErrors({
-                code_reference: errors.code_reference || "",
-                name: errors.name || "",
-                price: errors.price || "",
-                tax_rate: errors.tax_rate || "",
-                unit_measure_id: errors.unit_measure_id || "",
-                standard_code_id: errors.standard_code_id || "",
-                is_excluded: errors.is_excluded || "",
-                tribute_id: errors.tribute_id || "",
-                withholding_taxes: errors.withholding_taxes || "",
-            });
-        }
-    };
-
+    const {
+        formData,
+        formErrors,
+        handleChange,
+        handleChangeSelect,
+        handleBlur,
+        handleSubmit,
+    } = useForm<FormDataInteface>(
+        initialFormData,
+        itemSchema,
+        initialFormErrors
+    );
     return (
         <Form
             action=""
