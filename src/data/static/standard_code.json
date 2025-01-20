@@ -1,0 +1,20 @@
+{
+    "data": [
+        {
+            "id": 1,
+            "name": "Estándar de adopción del contribuyente"
+        },
+        {
+            "id": 2,
+            "name": "UNSPSC"
+        },
+        {
+            "id": 3,
+            "name": "Partida arancelaria"
+        },
+        {
+            "id": 4,
+            "name": "GTIN"
+        }
+    ]
+}

@@ -1,0 +1,19 @@
+{
+    "data": [
+        {
+            "id": 8,
+            "document": "Factura de Venta",
+            "prefix": "SETP"
+        },
+        {
+            "id": 9,
+            "document": "Nota Crédito",
+            "prefix": "NC"
+        },
+        {
+            "id": 10,
+            "document": "Nota Débito",
+            "prefix": "ND"
+        }
+    ]
+}
