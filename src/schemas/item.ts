@@ -1,8 +1,8 @@
 import { z } from "zod";
 
 const withholding_taxSchema = z.object({
-    code: z.number().int(),
-    withholding_tax_rate: z.number().int(),
+    code: z.string(),
+    withholding_tax_rate: z.string(),
 });
 export const itemSchema = z.object({
     code_reference: z

@@ -25,8 +25,6 @@ export default function useForm<T>(
     };
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
         const { name, value } = event.target;
-        console.log(name, value);
-        console.log(typeof value);
         setFormData({
             ...formData,
             [name]: parseValueType(name, value),
@@ -34,8 +32,6 @@ export default function useForm<T>(
     };
     const handleChangeSelect = (event: SelectChangeEvent): void => {
         const { name, value } = event.target;
-        console.log(name, value);
-        console.log(typeof value);
         setFormData({
             ...formData,
             [name]: value,
@@ -92,14 +88,13 @@ export default function useForm<T>(
         return true;
     };
 
-    const handleSubmit = async (
-        event: React.FormEvent<HTMLFormElement>
-    ): Promise<void> => {
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const data: T = { ...formData };
 
         if (validateFormData(data)) {
-            console.log(data);
+            setFormData(initialState);
+            return data;
         }
     };
 

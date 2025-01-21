@@ -16,6 +16,7 @@ import { itemSchema } from "@/schemas/item";
 
 import useForm from "@/hooks/useForm";
 
+
 interface WithholdingtaxInterface {
     code: number;
     withholding_tax_rate: number;
@@ -55,6 +56,25 @@ const initialFormErrors: Record<string, string> = {
     withholding_taxes: "",
 };
 export default function ProductPage() {
+    const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        const data = handleSubmit(event);
+        try {
+            console.log("Sending data to the server...");
+            console.log(data);
+            const response = await fetch("http://localhost:3001/products", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(data),
+            });
+            const responseData = await response.json();
+            console.log("Success:", responseData);
+            alert("Producto creado con exito");
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    };
     const {
         formData,
         formErrors,
@@ -70,7 +90,7 @@ export default function ProductPage() {
     return (
         <main className={styles.container}>
             <h2>Creación de producto</h2>
-            <Form action="" className={styles.form} onSubmit={handleSubmit}>
+            <Form action="" className={styles.form} onSubmit={onSubmit}>
                 <TextField
                     label="Codigo de referencia"
                     name="code_reference"
