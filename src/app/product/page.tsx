@@ -1,5 +1,5 @@
 "use client";
-// import styles from "./Form.module.css";
+import styles from "./page.module.css";
 import Form from "next/form";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
@@ -16,10 +16,10 @@ import { itemSchema } from "@/schemas/item";
 
 import useForm from "@/hooks/useForm";
 
-interface Withholding_taxSchema {
+interface WithholdingtaxInterface {
     code: number;
     withholding_tax_rate: number;
-    [key: string]: string | number | Withholding_taxSchema[] | undefined;
+    // [key: string]: string | number | WithholdingtaxInterface[] | undefined;
 }
 interface FormDataInteface {
     code_reference: string;
@@ -30,7 +30,7 @@ interface FormDataInteface {
     standard_code_id: number;
     is_excluded: number;
     tribute_id: number;
-    withholding_taxes?: Withholding_taxSchema[];
+    withholding_taxes?: WithholdingtaxInterface[];
 }
 const initialFormData: FormDataInteface = {
     code_reference: "",
@@ -68,124 +68,146 @@ export default function ProductPage() {
         initialFormErrors
     );
     return (
-        <Form
-            action=""
-            style={{
-                display: "flex",
-                flexDirection: "column",
-                backgroundColor: "white",
-                padding: "20px",
-                borderRadius: "10px",
-                gap: "10px",
-            }}
-            onSubmit={handleSubmit}
-        >
-            <TextField
-                label="Codigo de referencia"
-                name="code_reference"
-                value={formData["code_reference"]}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={Boolean(formErrors["code_reference"])}
-                helperText={formErrors["code_reference"]}
-                type="number"
-            />
-            <TextField
-                label="Nombre"
-                name="name"
-                value={formData["name"]}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={Boolean(formErrors["name"])}
-                helperText={formErrors["name"]}
-                type="text"
-            />
-            <TextField
-                label="Precio"
-                name="price"
-                value={Number(formData["price"])}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={Boolean(formErrors["price"])}
-                helperText={formErrors["price"]}
-                type="number"
-            />
-            <TextField
-                label="Tasa de impuesto"
-                name="tax_rate"
-                value={formData["tax_rate"]}
-                onChange={handleChange}
-                onBlur={handleBlur}
-                error={Boolean(formErrors["tax_rate"])}
-                helperText={formErrors["tax_rate"]}
-                type="number"
-            />
-            <FormControl fullWidth>
-                <InputLabel id="unit_measure_id">Unidad de medida</InputLabel>
-                <Select
-                    labelId="unit_measure_id"
-                    id="unit_measure_id"
-                    name="unit_measure_id"
-                    value={formData["unit_measure_id"].toString()}
-                    label="Unidad de medida"
-                    onChange={handleChangeSelect}
+        <main className={styles.container}>
+            <h2>Creación de producto</h2>
+            <Form action="" className={styles.form} onSubmit={handleSubmit}>
+                <TextField
+                    label="Codigo de referencia"
+                    name="code_reference"
+                    value={formData["code_reference"]}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={Boolean(formErrors["code_reference"])}
+                    helperText={formErrors["code_reference"]}
+                    type="number"
+                    className={styles["code_reference"]}
+                />
+                <TextField
+                    label="Nombre"
+                    name="name"
+                    value={formData["name"]}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={Boolean(formErrors["name"])}
+                    helperText={formErrors["name"]}
+                    type="text"
+                    className={styles["name"]}
+                />
+                <TextField
+                    label="Precio"
+                    name="price"
+                    value={Number(formData["price"])}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={Boolean(formErrors["price"])}
+                    helperText={formErrors["price"]}
+                    type="number"
+                    className={styles["price"]}
+                />
+                <FormControl
+                    className={styles["unit_measure_id"]}
                     error={Boolean(formErrors["unit_measure_id"])}
-                    onBlur={handleBlur}
                 >
-                    <MenuItem value="0" disabled>
-                        Selecciona una unidad de medida
-                    </MenuItem>
-                    {measures.data.map((measure) => (
-                        <MenuItem key={measure.id} value={measure.id}>
-                            {measure.name}
+                    <InputLabel id="unit_measure_id">
+                        Unidad de medida
+                    </InputLabel>
+                    <Select
+                        labelId="unit_measure_id"
+                        id="unit_measure_id"
+                        name="unit_measure_id"
+                        value={formData["unit_measure_id"].toString()}
+                        label="Unidad de medida"
+                        onChange={handleChangeSelect}
+                        error={Boolean(formErrors["unit_measure_id"])}
+                        onBlur={handleBlur}
+                    >
+                        <MenuItem value="0" disabled>
+                            Selecciona una unidad de medida
                         </MenuItem>
-                    ))}
-                </Select>
-                <FormHelperText>{formErrors["unit_measure_id"]}</FormHelperText>
-            </FormControl>
-            <FormControl fullWidth>
-                <InputLabel id="standard_code_id">Codigo estandar</InputLabel>
-                <Select
-                    labelId="standard_code_id"
-                    id="standard_code_id"
-                    name="standard_code_id"
-                    value={formData["standard_code_id"].toString()}
-                    label="Unidad de medida"
-                    onChange={handleChangeSelect}
+                        {measures.data.map((measure) => (
+                            <MenuItem key={measure.id} value={measure.id}>
+                                {measure.name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                    <FormHelperText>
+                        {formErrors["unit_measure_id"]}
+                    </FormHelperText>
+                </FormControl>
+                <FormControl
+                    className={styles["standard_code_id"]}
                     error={Boolean(formErrors["standard_code_id"])}
-                    onBlur={handleBlur}
+                    fullWidth
                 >
-                    <MenuItem value="0" disabled>
-                        Seleccione un codigo estandar de producto
-                    </MenuItem>
-                    {standard_code.data.map((measure) => (
-                        <MenuItem key={measure.id} value={measure.id}>
-                            {measure.name}
+                    <InputLabel id="standard_code_id">
+                        Codigo estandar
+                    </InputLabel>
+                    <Select
+                        labelId="standard_code_id"
+                        id="standard_code_id"
+                        name="standard_code_id"
+                        value={formData["standard_code_id"].toString()}
+                        label="Unidad de medida"
+                        onChange={handleChangeSelect}
+                        error={Boolean(formErrors["standard_code_id"])}
+                        onBlur={handleBlur}
+                    >
+                        <MenuItem value="0" disabled>
+                            Seleccione un codigo estandar de producto
                         </MenuItem>
-                    ))}
-                </Select>
-                <FormHelperText>
-                    {formErrors["standard_code_id"]}
-                </FormHelperText>
-            </FormControl>
-            <FormControl fullWidth>
-                <InputLabel id="is_excluded">Excluido de iva</InputLabel>
-                <Select
-                    labelId="is_excluded"
-                    id="is_excluded"
-                    name="is_excluded"
-                    value={formData["is_excluded"].toString()}
-                    label="Excluido de iva"
-                    onChange={handleChangeSelect}
+                        {standard_code.data.map((measure) => (
+                            <MenuItem key={measure.id} value={measure.id}>
+                                {measure.name}
+                            </MenuItem>
+                        ))}
+                    </Select>
+                    <FormHelperText>
+                        {formErrors["standard_code_id"]}
+                    </FormHelperText>
+                </FormControl>
+                <FormControl
+                    className={styles["is_excluded"]}
                     error={Boolean(formErrors["is_excluded"])}
-                    onBlur={handleBlur}
+                    fullWidth
                 >
-                    <MenuItem value={0}>No</MenuItem>
-                    <MenuItem value={1}>Si</MenuItem>
-                </Select>
-                <FormHelperText>{formErrors["is_excluded"]}</FormHelperText>
-            </FormControl>
-            <Button type="submit">Enviar</Button>
-        </Form>
+                    <InputLabel id="is_excluded">Excluido de iva</InputLabel>
+                    <Select
+                        labelId="is_excluded"
+                        id="is_excluded"
+                        name="is_excluded"
+                        value={formData["is_excluded"].toString()}
+                        label="Excluido de iva"
+                        onChange={handleChangeSelect}
+                        error={Boolean(formErrors["is_excluded"])}
+                        onBlur={handleBlur}
+                    >
+                        <MenuItem value={0}>No</MenuItem>
+                        <MenuItem value={1}>Si</MenuItem>
+                    </Select>
+                    <FormHelperText classes={styles["helper-text"]}>
+                        {formErrors["is_excluded"]}
+                    </FormHelperText>
+                </FormControl>
+                <TextField
+                    label="Tasa de impuesto"
+                    name="tax_rate"
+                    value={formData["tax_rate"]}
+                    onChange={handleChange}
+                    onBlur={handleBlur}
+                    error={Boolean(formErrors["tax_rate"])}
+                    helperText={formErrors["tax_rate"]}
+                    type="number"
+                    className={styles["tax_rate"]}
+                />
+                <Button
+                    variant="contained"
+                    color="primary"
+                    className={styles["button-submit"]}
+                    type="submit"
+                >
+                    Enviar
+                </Button>
+            </Form>
+        </main>
     );
 }
