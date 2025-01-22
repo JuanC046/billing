@@ -12,27 +12,12 @@ import Select from "@mui/material/Select";
 import measures from "@/data/static/measures.json";
 import standard_code from "@/data/static/standard_code.json";
 
+import { ProductInterface as FormDataInteface } from "@/interfaces/product";
 import { itemSchema } from "@/schemas/item";
 
 import useForm from "@/hooks/useForm";
 
 
-interface WithholdingtaxInterface {
-    code: number;
-    withholding_tax_rate: number;
-    // [key: string]: string | number | WithholdingtaxInterface[] | undefined;
-}
-interface FormDataInteface {
-    code_reference: string;
-    name: string;
-    price: number;
-    tax_rate: string;
-    unit_measure_id: number;
-    standard_code_id: number;
-    is_excluded: number;
-    tribute_id: number;
-    withholding_taxes?: WithholdingtaxInterface[];
-}
 const initialFormData: FormDataInteface = {
     code_reference: "",
     name: "",
@@ -61,7 +46,7 @@ export default function ProductPage() {
         try {
             console.log("Sending data to the server...");
             console.log(data);
-            const response = await fetch("http://localhost:3001/products", {
+            const response = await fetch(`${process.env.NEXT_PUBLIC_URL_BACKEND}/products`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
@@ -69,6 +54,9 @@ export default function ProductPage() {
                 body: JSON.stringify(data),
             });
             const responseData = await response.json();
+            if (!response.ok) {
+                throw new Error(responseData.message);
+            }
             console.log("Success:", responseData);
             alert("Producto creado con exito");
         } catch (error) {

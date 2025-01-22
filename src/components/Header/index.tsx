@@ -1,18 +1,19 @@
 "use client";
 import { useState, SyntheticEvent } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import Image from "next/image";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
 import styles from "./Header.module.css";
 
-
 export default function Header() {
-    const [value, setValue] = useState<string>("");
+    const tab = usePathname();
+    const [value, setValue] = useState<string>(tab);
     const router = useRouter();
+
     const handleChange = (event: SyntheticEvent, newValue: string) => {
         setValue(newValue);
-        router.push(`/${newValue}`);
+        router.push(newValue);
     };
 
     return (
@@ -25,9 +26,9 @@ export default function Header() {
                 indicatorColor="secondary"
                 aria-label="Navigation tabs"
             >
-                <Tab value="" label="Factura" />
-                <Tab value="product" label="Producto" />
-                <Tab value="customer" label="Cliente" />
+                <Tab value="/" label="Factura" />
+                <Tab value="/product" label="Producto" />
+                <Tab value="/customer" label="Cliente" />
             </Tabs>
         </header>
     );
