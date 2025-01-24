@@ -1,0 +1,60 @@
+.form {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(5, 1fr);
+    gap: 16px;
+    width: 100%;
+}
+
+.identification_document_id {
+    grid-column: 1;
+    grid-row-start: 1;
+}
+.identification {
+    grid-column: 2;
+    grid-row-start: 1;
+}
+.dv {
+    grid-column: 3;
+    grid-row-start: 1;
+}
+.legal_organization_id {
+    grid-column: 1;
+    grid-row-start: 2;
+}
+.company {
+    grid-column: 2;
+    grid-row-start: 2;
+}
+.trade_name {
+    grid-column: 3;
+    grid-row-start: 2;
+}
+.names {
+    grid-column: span 2 / span 2;
+    grid-row-start: 3;
+    width: 100%;
+}
+.email {
+    grid-column: 1;
+    grid-row-start: 4;
+}
+.phone {
+    grid-column: 2;
+    grid-row-start: 4;
+}
+.address {
+    grid-column: 3;
+    grid-row-start: 4;
+}
+.tribute_id {
+    grid-column: 3;
+    grid-row-start: 3;
+}
+.button-submit {
+    grid-column: span 2 / span 2;
+    grid-row-start: 5;
+    justify-self: center;
+    width: 40%;
+    height: 60%;
+}

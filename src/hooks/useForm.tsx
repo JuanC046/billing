@@ -3,6 +3,7 @@ import { useState } from "react";
 import { z } from "zod";
 export default function useForm<T>(
     initialState: T,
+    numberElements: string[],
     schema: z.ZodObject<z.ZodRawShape>,
     initialErrors: Record<string, string>
 ) {
@@ -13,15 +14,7 @@ export default function useForm<T>(
         ...initialErrors,
     });
     const parseValueType = (name: string, value: string): number | string => {
-        return [
-            "price",
-            "unit_measure_id",
-            "standard_code_id",
-            "is_excluded",
-            "tribute_id",
-        ].includes(name)
-            ? Number(value)
-            : value;
+        return numberElements.includes(name) ? Number(value) : value;
     };
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
         const { name, value } = event.target;
@@ -88,8 +81,7 @@ export default function useForm<T>(
         return true;
     };
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+    const handleValidation = () => {
         const data: T = { ...formData };
 
         if (validateFormData(data)) {
@@ -104,6 +96,6 @@ export default function useForm<T>(
         handleChange,
         handleChangeSelect,
         handleBlur,
-        handleSubmit,
+        handleValidation,
     };
 }

@@ -1,0 +1,45 @@
+{
+    "data": [
+        {
+            "code": "10",
+            "name": "Efectivo"
+        },
+        {
+            "code": "42",
+            "name": "Consignación"
+        },
+        {
+            "code": "20",
+            "name": "Cheque"
+        },
+        {
+            "code": "47",
+            "name": "Transferencia"
+        },
+        {
+            "code": "71",
+            "name": "Bonos"
+        },
+        {
+            "code": "72",
+            "name": "Vales"
+        },
+        {
+            "code": "1",
+            "name": "Medio de pago no definido"
+        },
+        {
+            "code": "49",
+            "name": "Tarjeta de débito"
+        },
+        {
+            "code": "48",
+            "name": "Tarjeta de crédito"
+        },
+        {
+            "code": "zzz",
+            "name": "Otro"
+        }
+
+    ]
+}

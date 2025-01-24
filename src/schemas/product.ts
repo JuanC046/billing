@@ -4,7 +4,7 @@ const withholding_taxSchema = z.object({
     code: z.string(),
     withholding_tax_rate: z.string(),
 });
-export const itemSchema = z.object({
+export const productSchema = z.object({
     code_reference: z
         .string({
             required_error: "Este campo es requerido",
@@ -25,6 +25,7 @@ export const itemSchema = z.object({
         .refine((val) => /^\d+(\.\d{1,2})?$/.test(val.toString()), {
             message: "El precio no puede tener más de 2 decimales",
         }),
+    quantity: z.number().optional(),
     tax_rate: z
         .string({
             required_error: "Este campo es requerido",
@@ -32,6 +33,7 @@ export const itemSchema = z.object({
         .regex(/^\d{1,2}(\.\d{1,2})?$/, {
             message: "El impuesto no puede tener más de 2 decimales",
         }),
+    discount_rate: z.number().optional(),
     unit_measure_id: z
         .number({
             required_error: "Este campo es requerido",

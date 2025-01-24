@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import styles from "./page.module.css";
 import Form from "next/form";
 import TextField from "@mui/material/TextField";
@@ -8,15 +9,14 @@ import MenuItem from "@mui/material/MenuItem";
 import FormControl from "@mui/material/FormControl";
 import FormHelperText from "@mui/material/FormHelperText";
 import Select from "@mui/material/Select";
-
+import AlertDialog from "@/components/Dialog";
 import measures from "@/data/static/measures.json";
 import standard_code from "@/data/static/standard_code.json";
 
 import { ProductInterface as FormDataInteface } from "@/interfaces/product";
-import { itemSchema } from "@/schemas/item";
+import { productSchema as formDataSchema } from "@/schemas/product";
 
 import useForm from "@/hooks/useForm";
-
 
 const initialFormData: FormDataInteface = {
     code_reference: "",
@@ -26,7 +26,7 @@ const initialFormData: FormDataInteface = {
     unit_measure_id: 0,
     standard_code_id: 0,
     is_excluded: 0,
-    tribute_id: 0,
+    tribute_id: 1,
     withholding_taxes: [],
 };
 const initialFormErrors: Record<string, string> = {
@@ -41,44 +41,60 @@ const initialFormErrors: Record<string, string> = {
     withholding_taxes: "",
 };
 export default function ProductPage() {
-    const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
-        const data = handleSubmit(event);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        const data = handleValidation();
+        if (!data) {
+            return;
+        }
         try {
             console.log("Sending data to the server...");
             console.log(data);
-            const response = await fetch(`${process.env.NEXT_PUBLIC_URL_BACKEND}/products`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(data),
-            });
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_URL_BACKEND}/products`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(data),
+                }
+            );
             const responseData = await response.json();
             if (!response.ok) {
                 throw new Error(responseData.message);
             }
             console.log("Success:", responseData);
-            alert("Producto creado con exito");
+            setDialogOpen(true);
         } catch (error) {
             console.error("Error:", error);
         }
     };
+    const numberElements = [
+        "price",
+        "unit_measure_id",
+        "standard_code_id",
+        "is_excluded",
+        "tribute_id",
+    ];
     const {
         formData,
         formErrors,
         handleChange,
         handleChangeSelect,
         handleBlur,
-        handleSubmit,
+        handleValidation,
     } = useForm<FormDataInteface>(
         initialFormData,
-        itemSchema,
+        numberElements,
+        formDataSchema,
         initialFormErrors
     );
     return (
-        <main className={styles.container}>
+        <main>
             <h2>Creación de producto</h2>
-            <Form action="" className={styles.form} onSubmit={onSubmit}>
+            <Form action="" className={styles.form} onSubmit={handleSubmit}>
                 <TextField
                     label="Codigo de referencia"
                     name="code_reference"
@@ -155,7 +171,7 @@ export default function ProductPage() {
                         id="standard_code_id"
                         name="standard_code_id"
                         value={formData["standard_code_id"].toString()}
-                        label="Unidad de medida"
+                        label="Codigo estandar"
                         onChange={handleChangeSelect}
                         error={Boolean(formErrors["standard_code_id"])}
                         onBlur={handleBlur}
@@ -213,9 +229,15 @@ export default function ProductPage() {
                     className={styles["button-submit"]}
                     type="submit"
                 >
-                    Enviar
+                    Agregar producto
                 </Button>
             </Form>
+            <AlertDialog
+                open={dialogOpen}
+                handleClose={setDialogOpen}
+                title="Producto creado"
+                subtitle="El producto ha sido creado con exito"
+            />
         </main>
     );
 }

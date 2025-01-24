@@ -1,49 +1,41 @@
 "use client";
 import { auth } from "@/services/auth";
-import { useEffect } from "react";
-import styles from "./page.module.css";
-import Form from "next/form";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import FormHelperText from "@mui/material/FormHelperText";
-import Select from "@mui/material/Select";
+import { getProducts } from "@/services/products";
 
+import { useEffect, useState } from "react";
+import styles from "./page.module.css";
+import FormCustomer from "@/components/Forms/FormCustomer";
+import FormBill from "@/components/Forms/FormBill";
+import AddProducts from "@/components/AddProducts";
+import { Button } from "@mui/material";
+import AlertDialog from "@/components/Dialog";
+
+import { ProductInterface } from "@/interfaces/product";
 import { CustomerInterface } from "@/interfaces/customer";
+import { BaseBillInterface, BillInterface } from "@/interfaces/bill";
 import { customerSchema } from "@/schemas/customer";
-import { BillInterface } from "@/interfaces/bill";
-import { billSchema } from "@/schemas/bill";
+import { baseBillSchema } from "@/schemas/bill";
 
 import useForm from "@/hooks/useForm";
 
-import document_types from "@/data/static/document_types.json";
+import qs from "qs";
 
-// const initialFormData: BillInterface = {
-//     // numbering_range_id: 0,
-//     // document: "",
-//     // reference_code: "",
-//     // observation: "",
-//     // payment_method_code: "",
-//     customer: {
-//         identification_document_id: "",
-//         identification: "",
-//         dv: "",
-//         company: "",
-//         trade_name: "",
-//         names: "",
-//         address: "",
-//         email: "",
-//         phone: "",
-//         legal_organization_id: 0,
-//         tribute_id: 0,
-//         municipality_id: 0,
-//     },
-//     items: [],
-// };
+const initialFormDataBill: BaseBillInterface = {
+    numbering_range_id: 8,
+    document: "01",
+    reference_code: "fact" + Math.floor(Math.random() * 1000).toString(),
+    observation: "",
+    payment_method_code: "10",
+};
+const initialFormErrorsBill: Record<string, string> = {
+    numbering_range_id: "",
+    document: "",
+    reference_code: "",
+    observation: "",
+    payment_method_code: "",
+};
 const initialFormDataCustomer: CustomerInterface = {
-    identification_document_id: "",
+    identification_document_id: "3",
     identification: "",
     dv: "",
     company: "",
@@ -71,6 +63,10 @@ const initialFormErrorsCustomer: Record<string, string> = {
     municipality_id: "",
 };
 export default function Home() {
+    const [products, setProducts] = useState<ProductInterface[]>([]);
+    const [shoppingCart, setShoppingCart] = useState<ProductInterface[]>([]);
+    const [dialogOpen, setDialogOpen] = useState(false);
+    const [billqr, setBillqr] = useState("");
     useEffect(() => {
         const getTokens = async () => {
             try {
@@ -83,222 +79,138 @@ export default function Home() {
             }
         };
         getTokens();
+        const fetchProducts = async () => {
+            const data = await getProducts();
+            console.log("Productos\n", data);
+            setProducts(data);
+        };
+        fetchProducts();
     }, []);
+    const numberElementsBill: string[] = ["numbering_range_id"];
+    const {
+        formData: formDataBill,
+        formErrors: formErrorsBill,
+        handleChange: handleChangeBill,
+        handleBlur: handleBlurBill,
+        handleChangeSelect: handleChangeSelectBill,
+        handleValidation: handleValidationBill,
+    } = useForm<BaseBillInterface>(
+        initialFormDataBill,
+        numberElementsBill,
+        baseBillSchema,
+        initialFormErrorsBill
+    );
     const numberElementsCustomer: string[] = [];
     const {
-        formData,
-        formErrors,
-        handleChange,
-        handleBlur,
-        handleSubmit,
-        handleChangeSelect,
+        formData: formDataCustomer,
+        formErrors: formErrorsCustomer,
+        handleChange: handleChangeCustomer,
+        handleBlur: handleBlurCustomer,
+        handleChangeSelect: handleChangeSelectCustomer,
+        handleValidation: handleValidationCustomer,
     } = useForm<CustomerInterface>(
         initialFormDataCustomer,
         numberElementsCustomer,
         customerSchema,
         initialFormErrorsCustomer
     );
+    const handleSubmit = async () => {
+        const dataBill = handleValidationBill();
+        const dataCustomer = handleValidationCustomer();
+        if (!dataBill || !dataCustomer) {
+            alert("Hay campos sin llenar");
+            return;
+        }
+        if (!shoppingCart.length) {
+            alert("No hay productos agregados");
+            return;
+        }
+        try {
+            console.log("Sending data to the server...");
+            console.log(dataBill);
+            console.log(dataCustomer);
+            const data: BillInterface = {
+                ...dataBill,
+                customer: dataCustomer,
+                items: shoppingCart.map(({ id, ...item }) => item),
+            };
+            console.log(
+                "Final data (user input):",
+                JSON.stringify(data, null, 2)
+            );
+            const response = await fetch(
+                `${process.env.NEXT_PUBLIC_URL_API}/v1/bills/validate`,
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded",
+                        Authorization: `Bearer ${localStorage.getItem(
+                            "access_token"
+                        )}`,
+                        Accept: "application/json",
+                    },
+                    body: qs.stringify(data),
+                }
+            );
+            const responseData = await response.json();
+            console.log("Response\n", responseData);
+            if (!response.ok) {
+                throw new Error(responseData.message);
+            }
+            console.log("Success:", responseData);
+            setBillqr(responseData.data.bill.qr);
+            setDialogOpen(true);
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    };
     return (
         <main>
             <h2>Creación de factura</h2>
-            <Form action="" className={styles.form}>
-                <FormControl className={styles["identification_document_id"]}>
-                    <InputLabel id="identification_document_id">
-                        Tipo de documento
-                    </InputLabel>
-                    <Select
-                        labelId="identification_document_id"
-                        id="identification_document_id"
-                        name="identification_document_id"
-                        value={formData["identification_document_id"]}
-                        label="Tipo de documento"
-                        onChange={handleChangeSelect}
-                        error={Boolean(
-                            formErrors["identification_document_id"]
-                        )}
-                        onBlur={handleBlur}
-                    >
-                        {document_types.data.map((document) => (
-                            <MenuItem key={document.id} value={document.id}>
-                                {document.name}
-                            </MenuItem>
-                        ))}
-                    </Select>
-                    <FormHelperText>
-                        {formErrors["identification_document_id"]}
-                    </FormHelperText>
-                </FormControl>
-                <TextField
-                    label="Numero de documento"
-                    name="identification"
-                    value={formData["identification"]}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={Boolean(formErrors["identification"])}
-                    helperText={formErrors["identification"]}
-                    type="number"
-                    className={styles["identification"]}
+            <section className={styles.section}>
+                <h3>Información de la factura</h3>
+                <FormBill
+                    formData={formDataBill}
+                    formErrors={formErrorsBill}
+                    handleChange={handleChangeBill}
+                    handleBlur={handleBlurBill}
+                    handleChangeSelect={handleChangeSelectBill}
                 />
-                <TextField
-                    label="Digito de verificación"
-                    name="dv"
-                    value={formData["dv"]}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={Boolean(formErrors["dv"])}
-                    helperText={formErrors["dv"]}
-                    type="number"
-                    className={styles["dv"]}
-                    disabled={formData["identification_document_id"] !== "6"}
+            </section>
+            <hr />
+            <section className={styles.section}>
+                <h3>Información del cliente</h3>
+                <FormCustomer
+                    formData={formDataCustomer}
+                    formErrors={formErrorsCustomer}
+                    handleChange={handleChangeCustomer}
+                    handleBlur={handleBlurCustomer}
+                    handleChangeSelect={handleChangeSelectCustomer}
                 />
-                <FormControl
-                    className={styles["legal_organization_id"]}
-                    error={Boolean(formErrors["legal_organization_id"])}
-                >
-                    <InputLabel id="legal_organization_id">
-                        Tipo de organización
-                    </InputLabel>
-                    <Select
-                        labelId="legal_organization_id"
-                        id="legal_organization_id"
-                        name="legal_organization_id"
-                        value={formData["legal_organization_id"].toString()}
-                        label="Tipo de organización"
-                        onChange={handleChangeSelect}
-                        error={Boolean(formErrors["legal_organization_id"])}
-                        onBlur={handleBlur}
-                    >
-                        <MenuItem value="1">
-                            Persona juridica - Empresa
-                        </MenuItem>
-                        <MenuItem value="2">Persona natural</MenuItem>
-                    </Select>
-                    <FormHelperText>
-                        {formErrors["legal_organization_id"]}
-                    </FormHelperText>
-                </FormControl>
-                <TextField
-                    label="Nombre de la empresa"
-                    aria-label="Razon social"
-                    name="company"
-                    value={formData["company"]}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={Boolean(formErrors["company"])}
-                    helperText={formErrors["company"]}
-                    type="text"
-                    className={styles["company"]}
-                    disabled={formData["legal_organization_id"] !== "1"}
+            </section>
+            <section className={styles.section}>
+                <h3>Productos</h3>
+                <AddProducts
+                    products={products}
+                    shoppingCart={shoppingCart}
+                    setShoppingCart={setShoppingCart}
                 />
-                <TextField
-                    label="Nombre comercial (opcional)"
-                    name="trade_name"
-                    value={formData["trade_name"]}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={Boolean(formErrors["trade_name"])}
-                    helperText={formErrors["trade_name"]}
-                    type="text"
-                    className={styles["trade_name"]}
-                />
-                <TextField
-                    label="Nombres"
-                    name="names"
-                    value={formData["names"]}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={Boolean(formErrors["names"])}
-                    helperText={formErrors["names"]}
-                    type="text"
-                    className={styles["names"]}
-                    disabled={formData["legal_organization_id"] !== "2"}
-                />
-                <TextField
-                    label="Correo electronico"
-                    name="email"
-                    value={formData["email"]}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={Boolean(formErrors["email"])}
-                    helperText={formErrors["email"]}
-                    type="email"
-                    className={styles["email"]}
-                />
-                <TextField
-                    label="Telefono"
-                    name="phone"
-                    value={formData["phone"]}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={Boolean(formErrors["phone"])}
-                    helperText={formErrors["phone"]}
-                    type="tel"
-                    className={styles["phone"]}
-                />
-                <TextField
-                    label="Dirección"
-                    name="address"
-                    value={formData["address"]}
-                    onChange={handleChange}
-                    onBlur={handleBlur}
-                    error={Boolean(formErrors["address"])}
-                    helperText={formErrors["address"]}
-                    type="text"
-                    className={styles["address"]}
-                />
-                <FormControl
-                    className={styles["tribute_id"]}
-                    error={Boolean(formErrors["tribute_id"])}
-                    fullWidth
-                >
-                    <InputLabel id="tribute_id">Tipo de tributo</InputLabel>
-                    <Select
-                        labelId="tribute_id"
-                        id="tribute_id"
-                        name="tribute_id"
-                        value={formData["tribute_id"].toString()}
-                        label="Tipo de tributo"
-                        onChange={handleChangeSelect}
-                        error={Boolean(formErrors["tribute_id"])}
-                        onBlur={handleBlur}
-                    >
-                        <MenuItem value="18">IVA</MenuItem>
-                        <MenuItem value="21">No aplica</MenuItem>
-                    </Select>
-                    <FormHelperText>{formErrors["tribute_id"]}</FormHelperText>
-                </FormControl>
-                {/* <FormControl
-                    className={styles["is_excluded"]}
-                    error={Boolean(formErrors["is_excluded"])}
-                    fullWidth
-                >
-                    <InputLabel id="is_excluded">Excluido de iva</InputLabel>
-                    <Select
-                        labelId="is_excluded"
-                        id="is_excluded"
-                        name="is_excluded"
-                        value={formData["is_excluded"].toString()}
-                        label="Excluido de iva"
-                        onChange={handleChangeSelect}
-                        error={Boolean(formErrors["is_excluded"])}
-                        onBlur={handleBlur}
-                    >
-                        <MenuItem value={0}>No</MenuItem>
-                        <MenuItem value={1}>Si</MenuItem>
-                    </Select>
-                    <FormHelperText classes={styles["helper-text"]}>
-                        {formErrors["is_excluded"]}
-                    </FormHelperText>
-                </FormControl> */}
-                <Button
-                    variant="contained"
-                    color="primary"
-                    className={styles["button-submit"]}
-                    type="submit"
-                >
-                    Enviar
-                </Button>
-            </Form>
+            </section>
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={handleSubmit}
+                className={styles.button}
+            >
+                Crear factura
+            </Button>
+            <AlertDialog
+                open={dialogOpen}
+                handleClose={setDialogOpen}
+                title="Factura creada con exito"
+                subtitle="Acceda a su factura"
+                link={billqr}
+            />
         </main>
     );
 }
