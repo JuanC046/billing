@@ -160,6 +160,7 @@ export default function Home() {
             console.log("Success:", responseData);
             setBillqr(responseData.data.bill.qr);
             setDialogOpen(true);
+                // setShoppingCart([]);
         } catch (error) {
             console.error("Error:", error);
         }

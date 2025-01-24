@@ -22,6 +22,7 @@ const initialFormData: FormDataInteface = {
     code_reference: "",
     name: "",
     price: 0,
+    discount_rate: 0,
     tax_rate: "",
     unit_measure_id: 0,
     standard_code_id: 0,
