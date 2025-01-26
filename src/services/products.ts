@@ -6,5 +6,6 @@ export async function  getProducts() {
     }
     catch (error) {
         console.error(error);
+        throw new Error("Error al obtener los productos");
     }
 }

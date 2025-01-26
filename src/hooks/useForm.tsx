@@ -85,11 +85,14 @@ export default function useForm<T>(
         const data: T = { ...formData };
 
         if (validateFormData(data)) {
-            setFormData(initialState);
+            // setFormData(initialState);
             return data;
         }
     };
-
+    const handleClear = () => {
+        setFormData(initialState);
+        setFormErrors(initialErrors);
+    }
     return {
         formData,
         formErrors,
@@ -97,5 +100,6 @@ export default function useForm<T>(
         handleChangeSelect,
         handleBlur,
         handleValidation,
+        handleClear,
     };
 }

@@ -54,17 +54,25 @@ export default function AddProducts({
                         setProduct(selectedProduct || null);
                     }}
                 >
-                    <MenuItem value="0" disabled>
-                        Seleccione un producto
-                    </MenuItem>
-                    {products.map((product) => (
-                        <MenuItem
-                            key={product.code_reference}
-                            value={product.code_reference}
-                        >
-                            {product.name}
+                    {products.length && (
+                        <MenuItem value="0" disabled>
+                            Seleccione un producto
                         </MenuItem>
-                    ))}
+                    )}
+                    {products.length ? (
+                        products.map((product) => (
+                            <MenuItem
+                                key={product.code_reference}
+                                value={product.code_reference}
+                            >
+                                {product.name}
+                            </MenuItem>
+                        ))
+                    ) : (
+                        <MenuItem value="0" disabled>
+                            No hay productos
+                        </MenuItem>
+                    )}
                 </TextField>
                 <TextField
                     label="Cantidad"
@@ -78,6 +86,7 @@ export default function AddProducts({
                     variant="outlined"
                     color="primary"
                     onClick={handleAddProduct}
+                    disabled={Boolean(!product)}
                 >
                     Agregar producto
                 </Button>

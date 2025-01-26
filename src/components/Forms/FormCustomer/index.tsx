@@ -136,7 +136,7 @@ export default function FormCustomer({
                 helperText={formErrors["names"]}
                 type="text"
                 className={styles["names"]}
-                disabled={formData["legal_organization_id"] !== "2"}
+                disabled={formData["identification_document_id"] === "6"}
             />
             <TextField
                 label="Correo electronico"

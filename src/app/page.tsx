@@ -9,6 +9,7 @@ import FormBill from "@/components/Forms/FormBill";
 import AddProducts from "@/components/AddProducts";
 import { Button } from "@mui/material";
 import AlertDialog from "@/components/Dialog";
+import Progress from "@/components/Progress";
 
 import { ProductInterface } from "@/interfaces/product";
 import { CustomerInterface } from "@/interfaces/customer";
@@ -18,7 +19,7 @@ import { baseBillSchema } from "@/schemas/bill";
 
 import useForm from "@/hooks/useForm";
 
-import qs from "qs";
+import { validateBill } from "@/services/bills";
 
 const initialFormDataBill: BaseBillInterface = {
     numbering_range_id: 8,
@@ -66,7 +67,12 @@ export default function Home() {
     const [products, setProducts] = useState<ProductInterface[]>([]);
     const [shoppingCart, setShoppingCart] = useState<ProductInterface[]>([]);
     const [dialogOpen, setDialogOpen] = useState(false);
-    const [billqr, setBillqr] = useState("");
+    const [dialogMessage, setDialogMessage] = useState({
+        title: "",
+        subtitle: "",
+        link: "",
+    });
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
         const getTokens = async () => {
             try {
@@ -80,9 +86,23 @@ export default function Home() {
         };
         getTokens();
         const fetchProducts = async () => {
-            const data = await getProducts();
-            console.log("Productos\n", data);
-            setProducts(data);
+            try {
+                const data = await getProducts();
+                console.log("Productos\n", data);
+                setProducts(data);
+            } catch (error) {
+                console.error(error);
+                const errorMessage =
+                    error instanceof Error
+                        ? error.message
+                        : "Ha ocurrido un error inesperado";
+                setDialogMessage({
+                    title: "Ha ocurrido un error",
+                    subtitle: errorMessage,
+                    link: "",
+                });
+                setDialogOpen(true);
+            }
         };
         fetchProducts();
     }, []);
@@ -94,6 +114,7 @@ export default function Home() {
         handleBlur: handleBlurBill,
         handleChangeSelect: handleChangeSelectBill,
         handleValidation: handleValidationBill,
+        handleClear: handleClearBill,
     } = useForm<BaseBillInterface>(
         initialFormDataBill,
         numberElementsBill,
@@ -108,6 +129,7 @@ export default function Home() {
         handleBlur: handleBlurCustomer,
         handleChangeSelect: handleChangeSelectCustomer,
         handleValidation: handleValidationCustomer,
+        handleClear: handleClearCustomer,
     } = useForm<CustomerInterface>(
         initialFormDataCustomer,
         numberElementsCustomer,
@@ -118,55 +140,81 @@ export default function Home() {
         const dataBill = handleValidationBill();
         const dataCustomer = handleValidationCustomer();
         if (!dataBill || !dataCustomer) {
-            alert("Hay campos sin llenar");
+            setDialogMessage({
+                title: "Ha ocurrido un error",
+                subtitle: "Revise los campos del formulario",
+                link: "",
+            });
+            setDialogOpen(true);
+            return;
+        }
+        if (
+            dataCustomer.identification_document_id !== "6" &&
+            !dataCustomer.names
+        ) {
+            setDialogMessage({
+                title: "Ha ocurrido un error",
+                subtitle: "El campo de nombres es requerido",
+                link: "",
+            });
+            setDialogOpen(true);
+            document.getElementsByName("names")[0]?.focus();
+            return;
+        }
+        if (
+            dataCustomer.identification_document_id === "6" &&
+            !dataCustomer.company
+        ) {
+            setDialogMessage({
+                title: "Ha ocurrido un error",
+                subtitle: "El campo de empresa es requerido",
+                link: "",
+            });
+            setDialogOpen(true);
+            document.getElementsByName("company")[0]?.focus();
             return;
         }
         if (!shoppingCart.length) {
-            alert("No hay productos agregados");
+            setDialogMessage({
+                title: "Ha ocurrido un error",
+                subtitle: "Agregue productos al carrito",
+                link: "",
+            });
+            setDialogOpen(true);
             return;
         }
-        try {
-            console.log("Sending data to the server...");
-            console.log(dataBill);
-            console.log(dataCustomer);
-            const data: BillInterface = {
-                ...dataBill,
-                customer: dataCustomer,
-                items: shoppingCart.map(({ id, ...item }) => item),
-            };
-            console.log(
-                "Final data (user input):",
-                JSON.stringify(data, null, 2)
-            );
-            const response = await fetch(
-                `${process.env.NEXT_PUBLIC_URL_API}/v1/bills/validate`,
-                {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded",
-                        Authorization: `Bearer ${localStorage.getItem(
-                            "access_token"
-                        )}`,
-                        Accept: "application/json",
-                    },
-                    body: qs.stringify(data),
-                }
-            );
-            const responseData = await response.json();
-            console.log("Response\n", responseData);
-            if (!response.ok) {
-                throw new Error(responseData.message);
-            }
-            console.log("Success:", responseData);
-            setBillqr(responseData.data.bill.qr);
+        console.log("Sending data to the server...");
+        console.log(dataBill);
+        console.log(dataCustomer);
+        setLoading(true);
+        const response = await validateBill({
+            ...dataBill,
+            customer: dataCustomer,
+            items: shoppingCart.map(({ id, ...item }) => item),
+        } as BillInterface);
+        setLoading(false);
+        console.log("Response\n", response);
+        if (response.status !== "Created") {
+            setDialogMessage({
+                title: "Ha ocurrido un error",
+                subtitle: response.message,
+                link: "",
+            });
             setDialogOpen(true);
-            setShoppingCart([]);
-        } catch (error) {
-            console.error("Error:", error);
+            return;
         }
+        setDialogMessage({
+            title: "Factura creada con exito",
+            subtitle: "Acceda a su factura",
+            link: response.data.bill.qr,
+        });
+        setDialogOpen(true);
+        setShoppingCart([]);
+        handleClearBill();
+        handleClearCustomer();
     };
     return (
-        <main>
+        <main aria-hidden="false">
             <h2>Creación de factura</h2>
             <section className={styles.section}>
                 <h3>Información de la factura</h3>
@@ -202,16 +250,18 @@ export default function Home() {
                 color="primary"
                 onClick={handleSubmit}
                 className={styles.button}
+                size="large"
             >
                 Crear factura
             </Button>
             <AlertDialog
                 open={dialogOpen}
                 handleClose={setDialogOpen}
-                title="Factura creada con exito"
-                subtitle="Acceda a su factura"
-                link={billqr}
+                title={dialogMessage.title}
+                subtitle={dialogMessage.subtitle}
+                link={dialogMessage.link}
             />
+            <Progress open={loading} title="Creando factura..." />
         </main>
     );
 }

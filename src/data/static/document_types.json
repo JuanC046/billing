@@ -21,10 +21,6 @@
             "name": "Cédula de extranjería"
         },
         {
-            "id": "6",
-            "name": "NIT"
-        },
-        {
             "id": "7",
             "name": "Pasaporte"
         },
@@ -34,16 +30,7 @@
         },
         {
             "id": "9",
-            "name": "PEP"	
-        },
-        {
-            "id": "10",
-            "name": "NIT otro país"
-        },
-        {
-            "id": "11",
-            "name": "NUIP"
+            "name": "PEP"
         }
-
     ]
 }
