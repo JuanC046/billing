@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# FACTUS API Integration Project
+
+## Overview
+This project demonstrates the integration of FACTUS API for electronic billing in Colombia. FACTUS is a service provided by HALLTEC, a Colombian Software Company, that enables businesses to generate and manage electronic invoices compliant with Colombian regulations.
+
+## Description
+The solution implements a complete integration with FACTUS API, allowing users to:
+- Generate electronic invoices
+- Manage billing information
+- Comply with Colombian electronic billing requirements
+- Handle responses and notifications from FACTUS system
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+- .NET Core SDK (version will be specified)
+- API credentials from HALLTEC
+- Basic understanding of electronic billing in Colombia
 
+### Installation
+1. Clone the repository
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/FACTUS.git
+cd FACTUS/billing
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Configure your environment variables
+```bash
+# Create a .env file with your FACTUS API credentials
+NEXT_PUBLIC_URL_API="<entry point>"
+NEXT_PUBLIC_EMAIL="<your access email>"
+NEXT_PUBLIC_PASSWORD="<your password>"
+NEXT_PUBLIC_CLIENT_ID="<your client id>"
+NEXT_PUBLIC_CLIENT_SECRET="<your client secret>"
+NEXT_PUBLIC_GRANT_TYPE="<password>"
+NEXT_PUBLIC_URL_BACKEND="url of your backend or fake backend like a json-server"
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Install dependencies
+```bash
+dotnet restore
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Run the project
+```bash
+dotnet run
+```
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
