@@ -17,7 +17,6 @@ The solution implements a complete integration with FACTUS API, allowing users t
 
 ### Prerequisites
 
--   .NET Core SDK (version will be specified)
 -   API credentials from HALLTEC
 -   Basic understanding of electronic billing in Colombia
 
@@ -46,7 +45,13 @@ NEXT_PUBLIC_URL_BACKEND="url of your backend or fake backend like a json-server"
 3. Install dependencies
 
 ```bash
-dotnet restore
+npm install
+```
+
+4. Run project
+
+```bash
+npm run dev
 ```
 
 4. Run the project
