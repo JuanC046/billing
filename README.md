@@ -2,7 +2,7 @@
 
 ## Overview
 
-This project demonstrates the integration of FACTUS API for electronic billing in Colombia. FACTUS is a service provided by HALLTEC, a Colombian Software Company, that enables businesses to generate and manage electronic invoices compliant with Colombian regulations.
+This project demonstrates the integration of FACTUS API for electronic billing in Colombia. FACTUS is a service provided by HALLTEC, a Colombian software company, that enables businesses to generate and manage electronic invoices compliant with Colombian regulations.
 
 ## Description
 
@@ -11,7 +11,7 @@ The solution implements a complete integration with FACTUS API, allowing users t
 -   Generate electronic invoices
 -   Manage billing information
 -   Comply with Colombian electronic billing requirements
--   Handle responses and notifications from FACTUS system
+-   Handle responses and notifications from the FACTUS system
 
 ## Getting Started
 
@@ -48,14 +48,8 @@ NEXT_PUBLIC_URL_BACKEND="url of your backend or fake backend like a json-server"
 npm install
 ```
 
-4. Run project
-
-```bash
-npm run dev
-```
-
 4. Run the project
 
 ```bash
-dotnet run
+npm run dev
 ```
