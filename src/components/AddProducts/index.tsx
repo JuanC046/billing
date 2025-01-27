@@ -5,6 +5,8 @@ import Button from "@mui/material/Button";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemText from "@mui/material/ListItemText";
+import ListItemIcon from '@mui/material/ListItemIcon';
+import EditIcon from '@mui/icons-material/Edit';
 import styles from "./AddProducts.module.css";
 import Typography from "@mui/material/Typography";
 
@@ -35,7 +37,8 @@ export default function AddProducts({
         setProduct(null);
         setQuantity(1);
     };
-
+    // const handleEditProduct = () => {
+    //     setShoppingCart([...shoppingCart, ]);
     return (
         <>
             <div className={styles["add_product"]}>
@@ -112,6 +115,9 @@ export default function AddProducts({
                                 product.price * (product.quantity || 1)
                             }`}
                         />
+                        <ListItemIcon>
+                            <EditIcon />
+                        </ListItemIcon>
                     </ListItem>
                 ))}
             </List>
