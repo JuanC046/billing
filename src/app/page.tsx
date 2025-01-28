@@ -45,7 +45,7 @@ const initialFormDataCustomer: CustomerInterface = {
     address: "",
     email: "",
     phone: "",
-    legal_organization_id: "1",
+    legal_organization_id: "2",
     tribute_id: "18",
     // municipality_id: 0,
 };

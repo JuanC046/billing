@@ -28,7 +28,7 @@ export default function Header() {
             >
                 <Tab value="/" label="Factura" />
                 <Tab value="/product" label="Producto" />
-                <Tab value="/customer" label="Cliente" />
+                {/* <Tab value="/customer" label="Cliente" /> */}
             </Tabs>
         </header>
     );

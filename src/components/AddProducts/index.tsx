@@ -115,9 +115,9 @@ export default function AddProducts({
                                 product.price * (product.quantity || 1)
                             }`}
                         />
-                        <ListItemIcon>
+                        {/* <ListItemIcon>
                             <EditIcon />
-                        </ListItemIcon>
+                        </ListItemIcon> */}
                     </ListItem>
                 ))}
             </List>
