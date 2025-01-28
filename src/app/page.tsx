@@ -190,7 +190,7 @@ export default function Home() {
         const response = await validateBill({
             ...dataBill,
             customer: dataCustomer,
-            items: shoppingCart.map(({ id, ...item }) => item),
+            items: shoppingCart as ProductInterface[],
         } as BillInterface);
         setLoading(false);
         console.log("Response\n", response);
