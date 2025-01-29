@@ -88,6 +88,7 @@ export default function AddProducts({
                     className={styles["button-add"]}
                     variant="outlined"
                     color="primary"
+                    size="large"
                     onClick={handleAddProduct}
                     disabled={Boolean(!product)}
                 >
