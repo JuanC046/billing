@@ -43,6 +43,28 @@ const initialFormErrors: Record<string, string> = {
 };
 export default function ProductPage() {
     const [dialogOpen, setDialogOpen] = useState(false);
+
+    const numberElements = [
+        "price",
+        "unit_measure_id",
+        "standard_code_id",
+        "is_excluded",
+        "tribute_id",
+    ];
+    const {
+        formData,
+        formErrors,
+        handleChange,
+        handleChangeSelect,
+        handleBlur,
+        handleValidation,
+        handleClear,
+    } = useForm<FormDataInteface>(
+        initialFormData,
+        numberElements,
+        formDataSchema,
+        initialFormErrors
+    );
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const data = handleValidation();
@@ -68,30 +90,12 @@ export default function ProductPage() {
             }
             console.log("Success:", responseData);
             setDialogOpen(true);
+            handleClear();
         } catch (error) {
             console.error("Error:", error);
         }
     };
-    const numberElements = [
-        "price",
-        "unit_measure_id",
-        "standard_code_id",
-        "is_excluded",
-        "tribute_id",
-    ];
-    const {
-        formData,
-        formErrors,
-        handleChange,
-        handleChangeSelect,
-        handleBlur,
-        handleValidation,
-    } = useForm<FormDataInteface>(
-        initialFormData,
-        numberElements,
-        formDataSchema,
-        initialFormErrors
-    );
+
     return (
         <main>
             <h2>Creación de producto</h2>
